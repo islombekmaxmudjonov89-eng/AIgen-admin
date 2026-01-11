@@ -3,8 +3,8 @@ import requests
 import base64
 import json
 
-# --- SOZLAMALAR (HASAN MIGAL USULI) ---
-# Tokenning boshida yoki oxirida bitta ham bo'sh joy qolmasin!
+# --- HASAN MIGAL SOZLAMALARI ---
+# Diqqat: Tokenning boshida "ghp_" dan oldin bitta ham bo'sh joy qolmasin!
 GITHUB_TOKEN = "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" 
 REPO_NAME = "islombekmaxmudjonov89-eng/AIGen.uz"
 FILE_PATH = "config.json"
@@ -12,37 +12,46 @@ FILE_PATH = "config.json"
 st.set_page_config(page_title="AIGen Admin", page_icon="🔒")
 st.title("👨‍💻 AIGen.uz Boshqaruv Paneli")
 
+# Chap menyudagi parol
 password = st.sidebar.text_input("Parolni kiriting:", type="password")
 
 if password == "ADMIN1986":
     st.success("Xush kelibsiz, Admin!")
-    new_link = st.text_input("Yangi Smartlinkni kiriting:", placeholder="Linkni shu yerga tashla")
+    new_link = st.text_input("Yangi Smartlinkni kiriting:", placeholder="HilltopAds linkini shu yerga tashla")
     
     if st.button("Yangilash"):
         url = f"https://api.github.com/repos/{REPO_NAME}/contents/{FILE_PATH}"
-        # Tokenni to'g'ri yuborish uchun header
+        # Tokenni "Authorization" headeriga to'g'ri joylash
         headers = {
-            "Authorization": f"Bearer {GITHUB_TOKEN}",
+            "Authorization": f"token {GITHUB_TOKEN}",
             "Accept": "application/vnd.github.v3+json"
         }
         
+        # 1. Avval faylni tekshiramiz
         r = requests.get(url, headers=headers)
         
         if r.status_code == 200:
             sha = r.json()['sha']
-            content_base64 = base64.b64encode(json.dumps({"ad_link": new_link}).encode()).decode()
+            content_json = json.dumps({"ad_link": new_link}, indent=4)
+            content_base64 = base64.b64encode(content_json.encode()).decode()
             
-            data = {"message": "Link yangilandi", "content": content_base64, "sha": sha}
+            data = {
+                "message": "Link admin panel orqali yangilandi",
+                "content": content_base64,
+                "sha": sha
+            }
+            
+            # 2. Faylni yangilaymiz
             put_r = requests.put(url, headers=headers, json=data)
             
             if put_r.status_code == 200:
                 st.balloons()
-                st.success("Bo'ldi uka, soqqa tayyor! Saytni tekshir.")
+                st.success("Tabriklayman! Link yangilandi. AIGen.uz saytiga o'tib tekshiring.")
             else:
-                st.error(f"GitHub ruxsat bermadi: {put_r.status_code}")
+                st.error(f"GitHub ruxsat bermadi. Xato kodi: {put_r.status_code}")
         elif r.status_code == 401:
-            st.error("Token xato! GitHub'dan yangi token olib, kodga qo'y.")
+            st.error("Token xato yoki muddati o'tgan! GitHub-dan yangi token olib koddagi GITHUB_TOKEN ga qo'ying.")
         else:
-            st.error(f"Xatolik kodi: {r.status_code}")
+            st.error(f"Bog'lanishda xato: {r.status_code}. Repository nomi to'g'riligini tekshiring.")
 else:
-    st.info("Kirish uchun parolni kiriting.")
+    st.info("Boshqaruv paneliga kirish uchun parolni kiriting.")
