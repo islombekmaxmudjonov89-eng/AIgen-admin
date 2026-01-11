@@ -4,7 +4,7 @@ import base64
 import json
 
 # --- SOZLAMALAR ---
-# Telegramga tashlab qo'ygan "ghp_..." kodni mana shu qo'shtirnoq ichiga yoz:
+# Tokenning boshida va oxirida bo'sh joy qolmasin!
 GITHUB_TOKEN = "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" 
 REPO_NAME = "islombekmaxmudjonov89-eng/AIGen.uz"
 FILE_PATH = "config.json"
